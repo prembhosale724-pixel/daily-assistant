@@ -1,38 +1,133 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Daily Assistant</title>
+  <title>AI Personal Assistant</title>
   <style>
     body {
       font-family: Arial;
       text-align: center;
-      padding: 20px;
       background: #f2f2f2;
+      padding: 20px;
     }
-    input, button {
+    input, button, select {
       padding: 10px;
       margin: 5px;
       border-radius: 5px;
     }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
     li {
-      margin: 10px;
+      margin: 5px 0;
+    }
+    .section-title {
+      color: #333;
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🤖 Daily Assistant</h1>
-<p>Your personal helper</p>
+<h1>🤖 AI Personal Assistant</h1>
+<p>Manage tasks, reminders, and voice commands</p>
 
+<!-- Section selector -->
+<select id="sectionSelect">
+  <option value="Study">Study</option>
+  <option value="Workout">Workout</option>
+  <option value="Personal">Personal</option>
+</select>
+
+<!-- Task inputs -->
 <input id="taskInput" placeholder="Enter task">
 <input id="timeInput" type="time">
 
-<br><br>
+<br>
 
+<!-- Buttons -->
 <button onclick="enableSound()">Enable Sound 🔊</button>
 <button onclick="addTask()">Add Task</button>
+<button onclick="startVoice()">🎤 Voice Command</button>
 
-<ul id="taskList"></ul>
+<!-- Sections -->
+<h2 class="section-title">Study Section</h2>
+<ul id="Study"></ul>
 
-<audio id="alarmSound
+<h2 class="section-title">Workout Section</h2>
+<ul id="Workout"></ul>
+
+<h2 class="section-title">Personal Section</h2>
+<ul id="Personal"></ul>
+
+<!-- Alarm sound -->
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+<!-- JS will come here -->
+<script>
+let soundEnabled = false;
+
+// Step 1: Enable Sound
+function enableSound() {
+  soundEnabled = true;
+  alert("Sound Enabled! Now add a task.");
+}
+
+// Step 2: Add Task function
+function addTask() {
+  const task = document.getElementById("taskInput").value;
+  const time = document.getElementById("timeInput").value;
+  const section = document.getElementById("sectionSelect").value;
+
+  if (!task || !time) {
+    alert("Please enter task and time");
+    return;
+  }
+
+  const li = document.createElement("li");
+  li.textContent = task + " at " + time + " ";
+
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "Delete";
+  delBtn.onclick = () => li.remove();
+
+  li.appendChild(delBtn);
+  document.getElementById(section).appendChild(li);
+
+  // Start reminder
+  setInterval(() => {
+    const now = new Date();
+    const currentTime = now.toTimeString().slice(0,5);
+
+    if (currentTime === time && soundEnabled) {
+      const alarm = document.getElementById("alarmSound");
+      alarm.play();
+      alert("⏰ Reminder: " + task + " (" + section + ")");
+      alarm.pause();
+      alarm.currentTime = 0;
+    }
+  }, 1000);
+}
+
+// Step 3: Voice Command (basic for now)
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Your browser does not support voice commands.");
+    return;
+  }
+
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.onresult = function(event) {
+    const command = event.results[0][0].transcript.toLowerCase();
+    alert("You said: " + command);
+    // We will parse commands later
+  }
+  recognition.start();
+}
+</script>
+
+</body>
+</html>
