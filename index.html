@@ -73,3 +73,14 @@ function handleCommand(cmd) {
   // 5️⃣ Command not recognized
   alert("Command not recognized 🤔\nTry: Add/Remind/Show task or say Hello");
 }
+
+// Helper to show tasks in a section
+function showTasks(section) {
+  const ul = document.getElementById(section);
+  const count = ul.children.length;
+  let msg = section + " tasks (" + count + "):\n";
+  for (let i = 0; i < count; i++) {
+    msg += "- " + ul.children[i].textContent.replace("Delete", "").trim() + "\n";
+  }
+  alert(msg);
+}
