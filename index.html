@@ -1,13 +1,13 @@
 function handleCommand(cmd) {
   cmd = cmd.toLowerCase();
 
-  // Greeting
+  // 1️⃣ Greeting
   if (cmd.includes("hello") || cmd.includes("hi")) {
     alert("Hello! I am your assistant 🤖");
     return;
   }
 
-  // Show total tasks
+  // 2️⃣ Show total tasks
   if (cmd.includes("tasks today") || cmd.includes("my tasks")) {
     const total =
       document.getElementById("Study").children.length +
@@ -17,52 +17,52 @@ function handleCommand(cmd) {
     return;
   }
 
-  // Show tasks in a section
+  // 3️⃣ Show tasks in a section
   if (cmd.includes("show")) {
     if (cmd.includes("study")) showTasks("Study");
     else if (cmd.includes("workout")) showTasks("Workout");
     else if (cmd.includes("personal")) showTasks("Personal");
+    else {
+      alert("Which section? Study / Workout / Personal");
+    }
     return;
   }
 
-  // Add task
+  // 4️⃣ Add task (any natural format)
   if (cmd.includes("add") || cmd.includes("remind") || cmd.includes("set")) {
+    // Section detection
     let section = "Personal"; // default
-
     if (cmd.includes("study")) section = "Study";
     if (cmd.includes("workout")) section = "Workout";
     if (cmd.includes("personal")) section = "Personal";
 
-    // Try to extract time (HH:MM)
-    const timeMatch = cmd.match(/(\d{1,2}[:.]\d{2})/);
-    let time = timeMatch ? timeMatch[1].replace(".", ":") : prompt("Enter time for task (HH:MM)");
+    // Time detection (HH:MM or 6 pm style)
+    let timeMatch = cmd.match(/(\d{1,2}[:.]\d{2})/);
+    let time = "";
+    if (timeMatch) {
+      time = timeMatch[1].replace(".", ":");
+    } else {
+      // Check for "at X pm/am"
+      let timeAMPM = cmd.match(/at (\d{1,2}) ?(am|pm)/);
+      if (timeAMPM) {
+        let hour = parseInt(timeAMPM[1]);
+        if (timeAMPM[2] === "pm" && hour < 12) hour += 12;
+        if (timeAMPM[2] === "am" && hour === 12) hour = 0;
+        time = (hour < 10 ? "0" + hour : hour) + ":00";
+      } else {
+        time = prompt("Enter time for task (HH:MM)");
+      }
+    }
 
-    // Try to extract task description
+    // Task description detection
     let task = "";
     if (cmd.includes("task")) {
       task = cmd.split("task")[1].split("at")[0].trim();
     } else if (cmd.includes("remind me to")) {
       task = cmd.split("remind me to")[1].split("at")[0].trim();
     } else {
-      task = prompt("Enter task name:");
-    }
+      // fallback: take everything after add/set/remind
+      task = cmd
 
-    addTask(task, time, section);
-    return;
-  }
 
-  alert("Command not recognized 🤔");
-}
-
-// Helper to show tasks in a section
-function showTasks(section) {
-  const ul = document.getElementById(section);
-  const count = ul.children.length;
-  let msg = section + " tasks (" + count + "):\n";
-
-  for (let i = 0; i < count; i++) {
-    msg += "- " + ul.children[i].textContent.replace("Delete", "").trim() + "\n";
-  }
-
-  alert(msg);
-}
+        
