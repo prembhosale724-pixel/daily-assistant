@@ -26,6 +26,8 @@
 </head>
 
 <body>
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
 
 <h1>🤖 Daily Assistant</h1>
 <p>Your personal helper</p>
@@ -78,7 +80,9 @@ setInterval(() => {
 
   tasks.forEach(t => {
     if (t.time === currentTime && !t.done) {
-      alert("⏰ Reminder: " + t.task);
+     document.getElementById("alarmSound").play();
+alert("⏰ Reminder: " + t.task);
+
       t.done = true;
     }
   });
