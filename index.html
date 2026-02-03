@@ -6,87 +6,84 @@
     body {
       font-family: Arial;
       text-align: center;
-      background: #f2f2f2;
+      margin-top: 50px;
     }
     input, button {
       padding: 10px;
       margin: 5px;
-      font-size: 16px;
-    }
-    ul {
-      list-style: none;
     }
     li {
-      background: white;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 5px;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
-<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
-
 
 <h1>🤖 Daily Assistant</h1>
 <p>Your personal helper</p>
 
 <input id="taskInput" placeholder="Enter task">
 <input id="timeInput" type="time">
+
+<br>
+<button onclick="enableSound()">Enable Sound 🔊</button>
 <button onclick="addTask()">Add Task</button>
 
 <ul id="taskList"></ul>
 
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
 <script>
-let tasks = [];
+let soundEnabled = false;
+
+function enableSound() {
+  const sound = document.getElementById("alarmSound");
+  sound.play();
+  sound.pause();
+  soundEnabled = true;
+  alert("Sound enabled!");
+}
 
 function addTask() {
-  let task = document.getElementById("taskInput").value;
-  let time = document.getElementById("timeInput").value;
+  const task = document.getElementById("taskInput").value;
+  const time = document.getElementById("timeInput").value;
 
-  if (task === "" || time === "") {
+  if (!task || !time) {
     alert("Enter task and time");
     return;
   }
 
-  tasks.push({ task: task, time: time, done: false });
-  showTasks();
+  const li = document.createElement("li");
+  li.textContent = task + " - " + time;
 
-  document.getElementById("taskInput").value = "";
-  document.getElementById("timeInput").value = "";
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Delete";
+  deleteBtn.onclick = () => li.remove();
+
+  li.appendChild(deleteBtn);
+  document.getElementById("taskList").appendChild(li);
+
+  checkReminder(task, time);
 }
 
-function showTasks() {
-  let list = document.getElementById("taskList");
-  list.innerHTML = "";
+function checkReminder(task, time) {
+  const interval = setInterval(() => {
+    const now = new Date();
+    const currentTime =
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0");
 
-  tasks.forEach((t, i) => {
-    let li = document.createElement("li");
-    li.innerHTML = `${t.task} - ${t.time} 
-    <button onclick="deleteTask(${i})">Delete</button>`;
-    list.appendChild(li);
-  });
-}
-
-function deleteTask(i) {
-  tasks.splice(i, 1);
-  showTasks();
-}
-
-setInterval(() => {
-  let now = new Date();
-  let currentTime = now.toTimeString().slice(0,5);
-
-  tasks.forEach(t => {
-    if (t.time === currentTime && !t.done) {
-     document.getElementById("alarmSound").play();
-alert("⏰ Reminder: " + t.task);
-
-      t.done = true;
+    if (currentTime === time) {
+      if (soundEnabled) {
+        document.getElementById("alarmSound").play();
+      }
+      alert("⏰ Reminder: " + task);
+      clearInterval(interval);
     }
-  });
-}, 1000);
+  }, 1000);
+}
 </script>
 
 </body>
