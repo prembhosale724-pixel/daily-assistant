@@ -60,21 +60,28 @@ function addTask() {
   li.appendChild(delBtn);
   document.getElementById(section).appendChild(li);
 
-  // ✅ Reminder with interval that stops after alert
+  // ✅ Add a flag to prevent repeated alarms
+  let alarmPlayed = false;
+
   const interval = setInterval(() => {
     const now = new Date();
     const currentTime = now.toTimeString().slice(0,5);
-    if (currentTime === time && soundEnabled) {
+
+    if (currentTime === time && soundEnabled && !alarmPlayed) {
+      alarmPlayed = true; // ✅ mark as played
       const alarm = document.getElementById("alarmSound");
       alarm.play();
+
+      // Use setTimeout to pause the alarm after closing alert
       alert("⏰ Reminder: " + task + " (" + section + ")");
       alarm.pause();
       alarm.currentTime = 0;
 
-      clearInterval(interval); // ✅ stop this interval after alarm
+      clearInterval(interval); // ✅ stop interval completely
     }
   }, 1000);
 }
+
 
 
 function startVoice() {
