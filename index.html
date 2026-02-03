@@ -1,3 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Personal Assistant</title>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f2f2f2; padding: 20px; }
+    input, button, select { padding: 10px; margin: 5px; border-radius: 5px; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin: 5px 0; }
+    .section-title { color: #333; font-weight: bold; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>🤖 AI Personal Assistant</h1>
+<p>Manage tasks, reminders, and voice commands</p>
+
+<select id="sectionSelect">
+  <option value="Study">Study</option>
+  <option value="Workout">Workout</option>
+  <option value="Personal">Personal</option>
+</select>
+
+<input id="taskInput" placeholder="Enter task">
+<input id="timeInput" type="time">
+<br>
+<button onclick="enableSound()">Enable Sound 🔊</button>
+<button onclick="addTask()">Add Task</button>
+<button onclick="startVoice()">🎤 Voice Command</button>
+
+<h2 class="section-title">Study Section</h2>
+<ul id="Study"></ul>
+<h2 class="section-title">Workout Section</h2>
+<ul id="Workout"></ul>
+<h2 class="section-title">Personal Section</h2>
+<ul id="Personal"></ul>
+
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+<!-- ✅ All JS must be inside <script> tags -->
+<script>
+let soundEnabled = false;
+
+function enableSound() {
+  soundEnabled = true;
+  alert("Sound Enabled! Now add a task.");
+}
+
 function addTask() {
   const task = document.getElementById("taskInput").value;
   const time = document.getElementById("timeInput").value;
@@ -12,8 +60,7 @@ function addTask() {
   li.appendChild(delBtn);
   document.getElementById(section).appendChild(li);
 
-  // ✅ Reminder with interval that stops after alert
-  const interval = setInterval(() => {
+  setInterval(() => {
     const now = new Date();
     const currentTime = now.toTimeString().slice(0,5);
     if (currentTime === time && soundEnabled) {
@@ -22,8 +69,24 @@ function addTask() {
       alert("⏰ Reminder: " + task + " (" + section + ")");
       alarm.pause();
       alarm.currentTime = 0;
-
-      clearInterval(interval); // ✅ stop this interval after alarm
     }
   }, 1000);
 }
+
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Your browser does not support voice commands.");
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.onresult = function(event) {
+    const command = event.results[0][0].transcript.toLowerCase();
+    alert("You said: " + command);
+  }
+  recognition.start();
+}
+</script>
+
+</body>
+</html>
