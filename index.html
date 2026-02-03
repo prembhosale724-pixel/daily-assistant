@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Assistant</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 30px;
+    }
+    input {
+      padding: 10px;
+      width: 200px;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: white;
+      margin: 5px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🤖 Daily Assistant</h1>
+  <p>Your personal helper for daily tasks</p>
+
+  <input type="text" id="taskInput" placeholder="Enter your task">
+  <button onclick="addTask()">Add</button>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    function addTask() {
+      let task = document.getElementById("taskInput").value;
+      if (task === "") return;
+
+      let li = document.createElement("li");
+      li.innerHTML = task + " <button onclick='removeTask(this)'>❌</button>";
+
+      document.getElementById("taskList").appendChild(li);
+      document.getElementById("taskInput").value = "";
+    }
+
+    function removeTask(button) {
+      button.parentElement.remove();
+    }
+  </script>
+</body>
+</html>
