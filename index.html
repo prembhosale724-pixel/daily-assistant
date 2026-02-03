@@ -9,7 +9,7 @@ function handleCommand(cmd) {
 
   // Show total tasks
   if (cmd.includes("tasks today") || cmd.includes("my tasks")) {
-    const total = 
+    const total =
       document.getElementById("Study").children.length +
       document.getElementById("Workout").children.length +
       document.getElementById("Personal").children.length;
@@ -28,6 +28,7 @@ function handleCommand(cmd) {
   // Add task
   if (cmd.includes("add") || cmd.includes("remind") || cmd.includes("set")) {
     let section = "Personal"; // default
+
     if (cmd.includes("study")) section = "Study";
     if (cmd.includes("workout")) section = "Workout";
     if (cmd.includes("personal")) section = "Personal";
@@ -58,8 +59,10 @@ function showTasks(section) {
   const ul = document.getElementById(section);
   const count = ul.children.length;
   let msg = section + " tasks (" + count + "):\n";
+
   for (let i = 0; i < count; i++) {
     msg += "- " + ul.children[i].textContent.replace("Delete", "").trim() + "\n";
   }
+
   alert(msg);
 }
