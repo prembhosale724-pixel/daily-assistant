@@ -1,86 +1,129 @@
-function handleCommand(cmd) {
-  cmd = cmd.toLowerCase();
-
-  // 1️⃣ Greeting
-  if (cmd.includes("hello") || cmd.includes("hi")) {
-    alert("Hello! I am your assistant 🤖");
-    return;
-  }
-
-  // 2️⃣ Show total tasks
-  if (cmd.includes("tasks today") || cmd.includes("my tasks")) {
-    const total =
-      document.getElementById("Study").children.length +
-      document.getElementById("Workout").children.length +
-      document.getElementById("Personal").children.length;
-    alert("You have " + total + " tasks today");
-    return;
-  }
-
-  // 3️⃣ Show tasks in a section
-  if (cmd.includes("show")) {
-    if (cmd.includes("study")) showTasks("Study");
-    else if (cmd.includes("workout")) showTasks("Workout");
-    else if (cmd.includes("personal")) showTasks("Personal");
-    else {
-      alert("Which section? Study / Workout / Personal");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Personal Assistant</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f2f2f2;
+      padding: 20px;
     }
-    return;
-  }
-
-  // 4️⃣ Add task (any natural format)
-  if (cmd.includes("add") || cmd.includes("remind") || cmd.includes("set")) {
-    // Section detection
-    let section = "Personal"; // default
-    if (cmd.includes("study")) section = "Study";
-    if (cmd.includes("workout")) section = "Workout";
-    if (cmd.includes("personal")) section = "Personal";
-
-    // Time detection (HH:MM or 6 pm style)
-    let timeMatch = cmd.match(/(\d{1,2}[:.]\d{2})/);
-    let time = "";
-    if (timeMatch) {
-      time = timeMatch[1].replace(".", ":");
-    } else {
-      // Check for "at X pm/am"
-      let timeAMPM = cmd.match(/at (\d{1,2}) ?(am|pm)/);
-      if (timeAMPM) {
-        let hour = parseInt(timeAMPM[1]);
-        if (timeAMPM[2] === "pm" && hour < 12) hour += 12;
-        if (timeAMPM[2] === "am" && hour === 12) hour = 0;
-        time = (hour < 10 ? "0" + hour : hour) + ":00";
-      } else {
-        time = prompt("Enter time for task (HH:MM)");
-      }
+    input, button, select {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
     }
-
-    // Task description detection
-    let task = "";
-    if (cmd.includes("task")) {
-      task = cmd.split("task")[1].split("at")[0].trim();
-    } else if (cmd.includes("remind me to")) {
-      task = cmd.split("remind me to")[1].split("at")[0].trim();
-    } else {
-      // fallback: take everything after add/set/remind
-      task = cmd.replace(/add|set|remind|to/gi, "").replace(/at .*/gi, "").trim();
-      if (!task) task = prompt("Enter task name:");
+    ul {
+      list-style: none;
+      padding-left: 0;
     }
+    li {
+      margin: 5px 0;
+    }
+    .section-title {
+      color: #333;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
 
-    addTask(task, time, section);
-    return;
-  }
+<body>
 
-  // 5️⃣ Command not recognized
-  alert("Command not recognized 🤔\nTry: Add/Remind/Show task or say Hello");
+<h1>🤖 AI Personal Assistant</h1>
+<p>Manage tasks, reminders, and voice commands</p>
+
+<select id="sectionSelect">
+  <option value="Study">Study</option>
+  <option value="Workout">Workout</option>
+  <option value="Personal">Personal</option>
+</select>
+
+<input id="taskInput" placeholder="Enter task">
+<input id="timeInput" type="time">
+
+<br>
+
+<button onclick="enableSound()">Enable Sound 🔊</button>
+<button onclick="addTask()">Add Task</button>
+<button onclick="startVoice()">🎤 Voice Command</button>
+
+<h2 class="section-title">Study Section</h2>
+<ul id="Study"></ul>
+
+<h2 class="section-title">Workout Section</h2>
+<ul id="Workout"></ul>
+
+<h2 class="section-title">Personal Section</h2>
+<ul id="Personal"></ul>
+
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+<script>
+let soundEnabled = false;
+
+// Enable sound
+function enableSound() {
+  soundEnabled = true;
+  alert("Sound Enabled! Now add a task.");
 }
 
-// Helper to show tasks in a section
-function showTasks(section) {
-  const ul = document.getElementById(section);
-  const count = ul.children.length;
-  let msg = section + " tasks (" + count + "):\n";
-  for (let i = 0; i < count; i++) {
-    msg += "- " + ul.children[i].textContent.replace("Delete", "").trim() + "\n";
+// Add task
+function addTask() {
+  const task = document.getElementById("taskInput").value;
+  const time = document.getElementById("timeInput").value;
+  const section = document.getElementById("sectionSelect").value;
+
+  if (!task || !time) {
+    alert("Please enter task and time");
+    return;
   }
-  alert(msg);
+
+  const li = document.createElement("li");
+  li.textContent = task + " at " + time + " ";
+
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "Delete";
+  delBtn.onclick = () => li.remove();
+
+  li.appendChild(delBtn);
+  document.getElementById(section).appendChild(li);
+
+  // Reminder
+  setInterval(() => {
+    const now = new Date();
+    const currentTime = now.toTimeString().slice(0,5);
+
+    if (currentTime === time && soundEnabled) {
+      const alarm = document.getElementById("alarmSound");
+      alarm.play();
+      alert("⏰ Reminder: " + task + " (" + section + ")");
+      alarm.pause();
+      alarm.currentTime = 0;
+    }
+  }, 1000);
 }
+
+// Basic voice command
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Your browser does not support voice commands.");
+    return;
+  }
+
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
+
+  recognition.onresult = function(event) {
+    const command = event.results[0][0].transcript.toLowerCase();
+    alert("You said: " + command);
+    // You can add parsing later
+  }
+
+  recognition.start();
+}
+</script>
+
+</body>
+</html>
