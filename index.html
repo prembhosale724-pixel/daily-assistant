@@ -60,27 +60,60 @@ function addTask() {
   li.appendChild(delBtn);
   document.getElementById(section).appendChild(li);
 
-  // ✅ Add a flag to prevent repeated alarms
+  // ✅ Popup div
   let alarmPlayed = false;
-
   const interval = setInterval(() => {
     const now = new Date();
     const currentTime = now.toTimeString().slice(0,5);
 
     if (currentTime === time && soundEnabled && !alarmPlayed) {
-      alarmPlayed = true; // ✅ mark as played
+      alarmPlayed = true;
+
       const alarm = document.getElementById("alarmSound");
+      alarm.loop = true; // loop until stopped
       alarm.play();
 
-      // Use setTimeout to pause the alarm after closing alert
-      alert("⏰ Reminder: " + task + " (" + section + ")");
-      alarm.pause();
-      alarm.currentTime = 0;
+      // Create custom popup
+      const popup = document.createElement("div");
+      popup.style.position = "fixed";
+      popup.style.top = "30%";
+      popup.style.left = "50%";
+      popup.style.transform = "translate(-50%, -50%)";
+      popup.style.background = "#fff";
+      popup.style.border = "2px solid #333";
+      popup.style.padding = "20px";
+      popup.style.zIndex = "1000";
+      popup.style.textAlign = "center";
+      popup.innerHTML = `
+        ⏰ Reminder: ${task} (${section}) <br><br>
+        <button id="stopAlarm">Stop</button>
+        <button id="snoozeAlarm">Snooze 5 min</button>
+      `;
+      document.body.appendChild(popup);
 
-      clearInterval(interval); // ✅ stop interval completely
+      document.getElementById("stopAlarm").onclick = () => {
+        alarm.pause();
+        alarm.currentTime = 0;
+        popup.remove();
+      };
+
+      document.getElementById("snoozeAlarm").onclick = () => {
+        alarm.pause();
+        alarm.currentTime = 0;
+        popup.remove();
+        // Add 5 min to time
+        let [h, m] = time.split(":").map(Number);
+        m += 5;
+        if (m >= 60) { h += 1; m -= 60; }
+        const newTime = (h<10?"0"+h:h) + ":" + (m<10?"0"+m:m);
+        addTask(task, newTime, section);
+      };
+
+      clearInterval(interval); // stop checking
     }
   }, 1000);
 }
+
 
 
 
