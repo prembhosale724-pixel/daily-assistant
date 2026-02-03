@@ -1,40 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Daily Assistant</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      margin-top: 50px;
-    }
-    input, button {
-      padding: 10px;
-      margin: 5px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 8px;
-      background: #f2f2f2;
-      padding: 10px;
-      border-radius: 5px;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>🤖 Daily Assistant</h1>
-  <p>Your personal helper for daily tasks</p>
-
-  <input type="text" id="taskInput" placeholder="Enter task">
-  <input type="time" id="timeInput">
-  <button onclick="addTask()">Add Task</button>
-
-  <ul id="taskList"></ul>
-
 <script>
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
@@ -46,47 +9,41 @@ function renderTasks() {
   document.getElementById("taskList").innerHTML = "";
   tasks.forEach((task, index) => {
     let li = document.createElement("li");
-    li.innerHTML = task.text + " ⏰ " + task.time +
-      ` <button onclick="deleteTask(${index})">❌</button>`;
+    li.innerHTML = `${task.text} ⏰ ${task.time} <button onclick="removeTask(${index})">❌</button>`;
     document.getElementById("taskList").appendChild(li);
   });
 }
 
 function addTask() {
-  let text = document.getElementById("taskInput").value;
-  let time = document.getElementById("timeInput").value;
+  let taskText = document.getElementById("taskInput").value;
+  let taskTime = document.getElementById("timeInput").value;
+  if(taskText === "" || taskTime === "") return alert("Enter task and time!");
 
-  if(text === "") {
-    alert("Enter a task");
-    return;
-  }
-
-  tasks.push({text, time});
+  tasks.push({ text: taskText, time: taskTime, alerted: false });
   saveTasks();
   renderTasks();
-
   document.getElementById("taskInput").value = "";
   document.getElementById("timeInput").value = "";
 }
 
-function deleteTask(index) {
+function removeTask(index) {
   tasks.splice(index, 1);
   saveTasks();
   renderTasks();
 }
 
-// Reminder checker
+// Check every second for reminders
 setInterval(() => {
-  let now = new Date().toLocaleTimeString().slice(0,5);
-  tasks.forEach(task => {
-    if(task.time === now) {
-      alert("Reminder: " + task.text);
+  let now = new Date();
+  let currentTime = now.toTimeString().slice(0,5); // HH:MM
+  tasks.forEach((task) => {
+    if(task.time === currentTime && !task.alerted){
+      alert(`⏰ Reminder: ${task.text}`);
+      task.alerted = true; // prevent alert repeating
+      saveTasks();
     }
   });
-}, 60000);
+}, 1000);
 
 renderTasks();
 </script>
-
-</body>
-</html>
