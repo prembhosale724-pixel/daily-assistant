@@ -3,29 +3,11 @@
 <head>
   <title>AI Personal Assistant</title>
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      background: #f2f2f2;
-      padding: 20px;
-    }
-    input, button, select {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-    }
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    li {
-      margin: 5px 0;
-    }
-    .section-title {
-      color: #333;
-      font-weight: bold;
-      margin-top: 20px;
-    }
+    body { font-family: Arial; text-align: center; background: #f2f2f2; padding: 20px; }
+    input, button, select { padding: 10px; margin: 5px; border-radius: 5px; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin: 5px 0; }
+    .section-title { color: #333; font-weight: bold; margin-top: 20px; }
   </style>
 </head>
 
@@ -34,25 +16,19 @@
 <h1>🤖 AI Personal Assistant</h1>
 <p>Manage tasks, reminders, and voice commands</p>
 
-<!-- Section selector -->
 <select id="sectionSelect">
   <option value="Study">Study</option>
   <option value="Workout">Workout</option>
   <option value="Personal">Personal</option>
 </select>
 
-<!-- Task inputs -->
 <input id="taskInput" placeholder="Enter task">
 <input id="timeInput" type="time">
-
 <br>
-
-<!-- Buttons -->
 <button onclick="enableSound()">Enable Sound 🔊</button>
 <button onclick="addTask()">Add Task</button>
 <button onclick="startVoice()">🎤 Voice Command</button>
 
-<!-- Sections -->
 <h2 class="section-title">Study Section</h2>
 <ul id="Study"></ul>
 
@@ -62,24 +38,22 @@
 <h2 class="section-title">Personal Section</h2>
 <ul id="Personal"></ul>
 
-<!-- Alarm sound -->
 <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
-<!-- JS will come here -->
 <script>
 let soundEnabled = false;
+let alarms = [];
 
-// Step 1: Enable Sound
 function enableSound() {
   soundEnabled = true;
   alert("Sound Enabled! Now add a task.");
 }
 
-// Step 2: Add Task function
-function addTask() {
-  const task = document.getElementById("taskInput").value;
-  const time = document.getElementById("timeInput").value;
-  const section = document.getElementById("sectionSelect").value;
+// Add Task with reminder
+function addTask(task = null, time = null, section = null) {
+  task = task || document.getElementById("taskInput").value;
+  time = time || document.getElementById("timeInput").value;
+  section = section || document.getElementById("sectionSelect").value;
 
   if (!task || !time) {
     alert("Please enter task and time");
@@ -96,22 +70,37 @@ function addTask() {
   li.appendChild(delBtn);
   document.getElementById(section).appendChild(li);
 
-  // Start reminder
-  setInterval(() => {
+  // Reminder with alarm
+  const alarm = setInterval(() => {
     const now = new Date();
     const currentTime = now.toTimeString().slice(0,5);
 
     if (currentTime === time && soundEnabled) {
-      const alarm = document.getElementById("alarmSound");
-      alarm.play();
+      const alarmSound = document.getElementById("alarmSound");
+      alarmSound.play();
       alert("⏰ Reminder: " + task + " (" + section + ")");
-      alarm.pause();
-      alarm.currentTime = 0;
+      showSnoozeStop(alarmSound);
     }
   }, 1000);
+  alarms.push(alarm);
+
+  alert("✅ Task added successfully!");
 }
 
-// Step 3: Voice Command (basic for now)
+// Snooze/Stop popup
+function showSnoozeStop(sound) {
+  const action = prompt("Type 's' to Stop, 'z' to Snooze 5 min").toLowerCase();
+  if (action === 's') {
+    sound.pause();
+    sound.currentTime = 0;
+  } else if (action === 'z') {
+    sound.pause();
+    sound.currentTime = 0;
+    setTimeout(() => sound.play(), 300000); // 5 min snooze
+  }
+}
+
+// Voice commands
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
     alert("Your browser does not support voice commands.");
@@ -122,12 +111,46 @@ function startVoice() {
   recognition.lang = "en-US";
   recognition.onresult = function(event) {
     const command = event.results[0][0].transcript.toLowerCase();
-    alert("You said: " + command);
-    // We will parse commands later
+    handleCommand(command);
   }
   recognition.start();
 }
-</script>
 
+// AI command parser
+function handleCommand(cmd) {
+  if (cmd.includes("hello")) {
+    alert("Hello! I am your assistant 🤖");
+  } else if (cmd.includes("tasks today")) {
+    const total = 
+      document.getElementById("Study").children.length +
+      document.getElementById("Workout").children.length +
+      document.getElementById("Personal").children.length;
+    alert("You have " + total + " tasks today");
+  } else if (cmd.includes("add")) {
+    // Example: "Add Study task Maths at 18:30"
+    const sectionMatch = cmd.match(/study|workout|personal/);
+    const taskMatch = cmd.match(/task (.+?) at/);
+    const timeMatch = cmd.match(/at (\d{1,2}:\d{2})/);
+    if (sectionMatch && taskMatch && timeMatch) {
+      addTask(taskMatch[1], timeMatch[1], capitalize(sectionMatch[0]));
+    } else {
+      alert("Could not parse add task command");
+    }
+  } else if (cmd.includes("show")) {
+    const sectionMatch = cmd.match(/study|workout|personal/);
+    if (sectionMatch) {
+      const section = capitalize(sectionMatch[0]);
+      const count = document.getElementById(section).children.length;
+      alert(section + " tasks: " + count);
+    }
+  } else {
+    alert("Command not recognized 🤔");
+  }
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+</script>
 </body>
 </html>
