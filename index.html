@@ -8,53 +8,84 @@
       text-align: center;
       margin-top: 50px;
     }
-    input {
+    input, button {
       padding: 10px;
-      width: 200px;
-    }
-    button {
-      padding: 10px;
+      margin: 5px;
     }
     ul {
       list-style: none;
       padding: 0;
     }
     li {
-      margin: 10px;
+      margin: 8px;
       background: #f2f2f2;
       padding: 10px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
-<h1>🤖 Daily Assistant</h1>
-<p>Your personal helper for daily tasks</p>
+  <h1>🤖 Daily Assistant</h1>
+  <p>Your personal helper for daily tasks</p>
 
-<input id="taskInput" placeholder="Enter your task">
-<button onclick="addTask()">Add</button>
+  <input type="text" id="taskInput" placeholder="Enter task">
+  <input type="time" id="timeInput">
+  <button onclick="addTask()">Add Task</button>
 
-<ul id="taskList"></ul>
+  <ul id="taskList"></ul>
 
 <script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  document.getElementById("taskList").innerHTML = "";
+  tasks.forEach((task, index) => {
+    let li = document.createElement("li");
+    li.innerHTML = task.text + " ⏰ " + task.time +
+      ` <button onclick="deleteTask(${index})">❌</button>`;
+    document.getElementById("taskList").appendChild(li);
+  });
+}
+
 function addTask() {
-  let task = document.getElementById("taskInput").value;
-  if(task === "") return;
+  let text = document.getElementById("taskInput").value;
+  let time = document.getElementById("timeInput").value;
 
-  let li = document.createElement("li");
-  li.textContent = task;
+  if(text === "") {
+    alert("Enter a task");
+    return;
+  }
 
-  let delBtn = document.createElement("button");
-  delBtn.textContent = "❌";
-  delBtn.onclick = function() {
-    li.remove();
-  };
-
-  li.appendChild(delBtn);
-  document.getElementById("taskList").appendChild(li);
+  tasks.push({text, time});
+  saveTasks();
+  renderTasks();
 
   document.getElementById("taskInput").value = "";
+  document.getElementById("timeInput").value = "";
 }
+
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  saveTasks();
+  renderTasks();
+}
+
+// Reminder checker
+setInterval(() => {
+  let now = new Date().toLocaleTimeString().slice(0,5);
+  tasks.forEach(task => {
+    if(task.time === now) {
+      alert("Reminder: " + task.text);
+    }
+  });
+}, 60000);
+
+renderTasks();
 </script>
 
 </body>
