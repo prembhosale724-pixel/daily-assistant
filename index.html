@@ -6,28 +6,24 @@
     body {
       font-family: Arial;
       text-align: center;
-      margin-top: 50px;
+      background: #f4f4f4;
     }
     input, button {
       padding: 10px;
       margin: 5px;
     }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
     li {
+      background: white;
       margin: 10px;
       padding: 10px;
-      background: #f2f2f2;
-      border-radius: 5px;
+      list-style: none;
     }
   </style>
 </head>
 <body>
 
   <h1>🤖 Daily Assistant</h1>
-  <p>Your personal helper for daily tasks</p>
+  <p>Your personal helper</p>
 
   <input type="text" id="taskInput" placeholder="Enter task">
   <input type="time" id="timeInput">
@@ -35,42 +31,24 @@
 
   <ul id="taskList"></ul>
 
-  <script>
-    let tasks = [];
+<script>
+let tasks = [];
 
-    function addTask() {
-      const taskText = document.getElementById("taskInput").value;
-      const taskTime = document.getElementById("timeInput").value;
+function addTask() {
+  let task = document.getElementById("taskInput").value;
+  let time = document.getElementById("timeInput").value;
 
-      if (taskText === "") {
-        alert("Please enter a task");
-        return;
-      }
+  if(task === "" || time === "") {
+    alert("Please enter task and time");
+    return;
+  }
 
-      tasks.push({ text: taskText, time: taskTime });
-      document.getElementById("taskInput").value = "";
-      document.getElementById("timeInput").value = "";
+  let taskObj = { task, time, reminded: false };
+  tasks.push(taskObj);
+  showTasks();
 
-      renderTasks();
-    }
+  document.getElementById("taskInput").value = "";
+  document.getElementById("timeInput").value = "";
+}
 
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-
-      tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = task.text + " ⏰ " + task.time +
-          " <button onclick='deleteTask(" + index + ")'>❌</button>";
-        list.appendChild(li);
-      });
-    }
-
-    function deleteTask(index) {
-      tasks.splice(index, 1);
-      renderTasks();
-    }
-  </script>
-
-</body>
-</html>
+func
