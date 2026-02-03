@@ -5,9 +5,8 @@
   <style>
     body {
       font-family: Arial;
-      background: #f2f2f2;
       text-align: center;
-      padding: 30px;
+      margin-top: 50px;
     }
     input {
       padding: 10px;
@@ -15,44 +14,48 @@
     }
     button {
       padding: 10px;
-      margin: 5px;
     }
     ul {
       list-style: none;
       padding: 0;
     }
     li {
-      background: white;
-      margin: 5px;
+      margin: 10px;
+      background: #f2f2f2;
       padding: 10px;
     }
   </style>
 </head>
-
 <body>
-  <h1>🤖 Daily Assistant</h1>
-  <p>Your personal helper for daily tasks</p>
 
-  <input type="text" id="taskInput" placeholder="Enter your task">
-  <button onclick="addTask()">Add</button>
+<h1>🤖 Daily Assistant</h1>
+<p>Your personal helper for daily tasks</p>
 
-  <ul id="taskList"></ul>
+<input id="taskInput" placeholder="Enter your task">
+<button onclick="addTask()">Add</button>
 
-  <script>
-    function addTask() {
-      let task = document.getElementById("taskInput").value;
-      if (task === "") return;
+<ul id="taskList"></ul>
 
-      let li = document.createElement("li");
-      li.innerHTML = task + " <button onclick='removeTask(this)'>❌</button>";
+<script>
+function addTask() {
+  let task = document.getElementById("taskInput").value;
+  if(task === "") return;
 
-      document.getElementById("taskList").appendChild(li);
-      document.getElementById("taskInput").value = "";
-    }
+  let li = document.createElement("li");
+  li.textContent = task;
 
-    function removeTask(button) {
-      button.parentElement.remove();
-    }
-  </script>
+  let delBtn = document.createElement("button");
+  delBtn.textContent = "❌";
+  delBtn.onclick = function() {
+    li.remove();
+  };
+
+  li.appendChild(delBtn);
+  document.getElementById("taskList").appendChild(li);
+
+  document.getElementById("taskInput").value = "";
+}
+</script>
+
 </body>
 </html>
