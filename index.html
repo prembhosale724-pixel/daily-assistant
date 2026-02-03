@@ -6,30 +6,35 @@
     body {
       font-family: Arial;
       text-align: center;
-      background: #f4f4f4;
+      background: #f2f2f2;
     }
     input, button {
       padding: 10px;
       margin: 5px;
+      font-size: 16px;
+    }
+    ul {
+      list-style: none;
     }
     li {
       background: white;
       margin: 10px;
       padding: 10px;
-      list-style: none;
+      border-radius: 5px;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>🤖 Daily Assistant</h1>
-  <p>Your personal helper</p>
+<h1>🤖 Daily Assistant</h1>
+<p>Your personal helper</p>
 
-  <input type="text" id="taskInput" placeholder="Enter task">
-  <input type="time" id="timeInput">
-  <button onclick="addTask()">Add Task</button>
+<input id="taskInput" placeholder="Enter task">
+<input id="timeInput" type="time">
+<button onclick="addTask()">Add Task</button>
 
-  <ul id="taskList"></ul>
+<ul id="taskList"></ul>
 
 <script>
 let tasks = [];
@@ -38,17 +43,47 @@ function addTask() {
   let task = document.getElementById("taskInput").value;
   let time = document.getElementById("timeInput").value;
 
-  if(task === "" || time === "") {
-    alert("Please enter task and time");
+  if (task === "" || time === "") {
+    alert("Enter task and time");
     return;
   }
 
-  let taskObj = { task, time, reminded: false };
-  tasks.push(taskObj);
+  tasks.push({ task: task, time: time, done: false });
   showTasks();
 
   document.getElementById("taskInput").value = "";
   document.getElementById("timeInput").value = "";
 }
 
-func
+function showTasks() {
+  let list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  tasks.forEach((t, i) => {
+    let li = document.createElement("li");
+    li.innerHTML = `${t.task} - ${t.time} 
+    <button onclick="deleteTask(${i})">Delete</button>`;
+    list.appendChild(li);
+  });
+}
+
+function deleteTask(i) {
+  tasks.splice(i, 1);
+  showTasks();
+}
+
+setInterval(() => {
+  let now = new Date();
+  let currentTime = now.toTimeString().slice(0,5);
+
+  tasks.forEach(t => {
+    if (t.time === currentTime && !t.done) {
+      alert("⏰ Reminder: " + t.task);
+      t.done = true;
+    }
+  });
+}, 1000);
+</script>
+
+</body>
+</html>
