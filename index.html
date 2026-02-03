@@ -62,4 +62,14 @@ function handleCommand(cmd) {
       task = cmd.split("remind me to")[1].split("at")[0].trim();
     } else {
       // fallback: take everything after add/set/remind
-      task = cmd
+      task = cmd.replace(/add|set|remind|to/gi, "").replace(/at .*/gi, "").trim();
+      if (!task) task = prompt("Enter task name:");
+    }
+
+    addTask(task, time, section);
+    return;
+  }
+
+  // 5️⃣ Command not recognized
+  alert("Command not recognized 🤔\nTry: Add/Remind/Show task or say Hello");
+}
