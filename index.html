@@ -60,7 +60,8 @@ function addTask() {
   li.appendChild(delBtn);
   document.getElementById(section).appendChild(li);
 
-  setInterval(() => {
+  // ✅ Reminder with interval that stops after alert
+  const interval = setInterval(() => {
     const now = new Date();
     const currentTime = now.toTimeString().slice(0,5);
     if (currentTime === time && soundEnabled) {
@@ -69,9 +70,12 @@ function addTask() {
       alert("⏰ Reminder: " + task + " (" + section + ")");
       alarm.pause();
       alarm.currentTime = 0;
+
+      clearInterval(interval); // ✅ stop this interval after alarm
     }
   }, 1000);
 }
+
 
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
